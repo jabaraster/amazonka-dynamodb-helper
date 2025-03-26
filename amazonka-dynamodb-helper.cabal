@@ -1,0 +1,57 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.37.0.
+--
+-- see: https://github.com/sol/hpack
+
+name:           amazonka-dynamodb-helper
+version:        0.0.1
+description:    Please see the README on GitHub at <https://github.com/jabaraster/servant-elm-study#README.md>
+homepage:       https://github.com/jabaraster/amazonka-dynamodb-helper#readme
+bug-reports:    https://github.com/jabaraster/amazonka-dynamodb-helper/issues
+author:         jabaraster
+maintainer:     jabaraster
+copyright:      2025 jabaraster
+license:        BSD3
+license-file:   LICENSE
+build-type:     Simple
+
+source-repository head
+  type: git
+  location: https://github.com/jabaraster/amazonka-dynamodb-helper
+
+library
+  exposed-modules:
+      Jabara.Amazonka.DynamoDB.Helper
+  other-modules:
+      Paths_amazonka_dynamodb_helper
+  hs-source-dirs:
+      src
+  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
+  build-depends:
+      amazonka-core
+    , amazonka-dynamodb
+    , base
+    , safe-exceptions
+    , text
+    , unordered-containers
+  default-language: Haskell2010
+
+test-suite amazonka-dynamodb-helper-test
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  other-modules:
+      Paths_amazonka_dynamodb_helper
+  hs-source-dirs:
+      test
+  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      aeson
+    , amazonka-dynamodb
+    , amazonka-dynamodb-helper
+    , base
+    , hspec
+    , hspec-wai
+    , hspec-wai-json
+    , safe-exceptions
+  default-language: Haskell2010

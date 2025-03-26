@@ -1,0 +1,61 @@
+name:                amazonka-dynamodb-helper
+version:             0.0.1
+github:              "jabaraster/amazonka-dynamodb-helper"
+license:             BSD3
+author:              "jabaraster"
+maintainer:          "jabaraster"
+copyright:           "2025 jabaraster"
+
+# extra-source-files:
+# - README.md
+# - CHANGELOG.md
+
+# Metadata used when publishing your package
+# synopsis:            Short description of your package
+# category:            Web
+
+# To avoid duplicated efforts in documentation and dealing with the
+# complications of embedding Haddock markup inside cabal files, it is
+# common to point users to the README.md file.
+description: Please see the README on GitHub at <https://github.com/jabaraster/servant-elm-study#README.md>
+
+dependencies:
+- base
+- amazonka-dynamodb
+- safe-exceptions
+
+ghc-options:
+- -Wall
+- -Wcompat
+- -Widentities
+- -Wincomplete-record-updates
+- -Wincomplete-uni-patterns
+- -Wmissing-export-lists
+- -Wmissing-home-modules
+- -Wpartial-fields
+- -Wredundant-constraints
+
+library:
+  source-dirs: src
+  dependencies:
+  - text
+  - unordered-containers
+  - amazonka-core
+  - amazonka-dynamodb
+  - safe-exceptions
+
+tests:
+  amazonka-dynamodb-helper-test:
+    main:                Spec.hs
+    source-dirs:         test
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - amazonka-dynamodb-helper
+    - base
+    - hspec
+    - hspec-wai
+    - hspec-wai-json
+    - aeson

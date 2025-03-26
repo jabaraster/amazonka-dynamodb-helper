@@ -1,0 +1,11 @@
+snapshot: lts-23.0
+compiler: ghc-9.6.6
+
+packages:
+- .
+
+extra-deps:
+- amazonka-dynamodb-2.0@sha256:f0509df0da2b61ce1b256f285bdf6ade452b0b4d9b129d7192dd8a13f90e5036,11852
+- amazonka-core-2.0@sha256:b60507a2791d05ce6fb69544a854c0ee0ec794908400aebe9adcacedf9cd4e17,4585
+
+allow-newer: true

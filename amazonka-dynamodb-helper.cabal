@@ -32,8 +32,10 @@ library
       amazonka-core
     , amazonka-dynamodb
     , base
+    , iso8601-time
     , safe-exceptions
     , text
+    , time
     , unordered-containers
   default-language: Haskell2010
 

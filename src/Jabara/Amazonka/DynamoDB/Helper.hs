@@ -1,10 +1,18 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Jabara.Amazonka.DynamoDB.Helper (
-  getText,
-  getTextUnsafe,
+  PropertyName,
+  DynamoDBRecord,
+  FromAttributeValue (..),
+  fromAttributeValueUnsafe,
+  getBoolean,
+  getBooleanUnsafe,
   getInteger,
   getIntegerUnsafe,
+  getText,
+  getTextUnsafe,
+  getUTCTime,
+  getUTCTimeUnsafe,
 ) where
 
 import Amazonka.DynamoDB.Types.AttributeValue
@@ -13,27 +21,100 @@ import Control.Exception.Safe (throwString)
 import qualified Data.HashMap.Strict as HashMap
 import Data.Text (Text)
 import qualified Data.Text as Text
+import Data.Time.Clock
+import Data.Time.ISO8601
 
-getText :: HashMap Text AttributeValue -> Text -> Either Text Text
+type PropertyName = Text
+type TypeName = Text
+type DynamoDBRecord = HashMap PropertyName AttributeValue
+
+class FromAttributeValue a where
+  fromAttributeValue :: DynamoDBRecord -> Either Text a
+
+fromAttributeValueUnsafe :: (FromAttributeValue a) => DynamoDBRecord -> IO a
+fromAttributeValueUnsafe av =
+  case fromAttributeValue av of
+    Right v -> return v
+    Left e -> throwString $ Text.unpack e
+
+getUTCTime :: DynamoDBRecord -> PropertyName -> Either Text UTCTime
+getUTCTime values propertyName =
+  getValueInternal
+    values
+    propertyName
+    ( \av -> case av of
+        S b -> case parseISO8601 $ Text.unpack b of
+          Just t -> Right t
+          Nothing -> Left $ Text.concat ["The value of property '", propertyName, "' is not in ISO8601 format"]
+        _ -> Left $ differentType propertyName "UTCTime"
+    )
+
+getUTCTimeUnsafe :: DynamoDBRecord -> PropertyName -> IO UTCTime
+getUTCTimeUnsafe values propertyName =
+  case getUTCTime values propertyName of
+    Right s -> return s
+    Left e -> throwString $ Text.unpack e
+
+getText :: DynamoDBRecord -> PropertyName -> Either Text Text
 getText values propertyName =
-  case HashMap.lookup propertyName values of
-    Just (S s) -> Right s
-    _ -> Left $ Text.concat ["property '", propertyName, "' not found."]
+  getValueInternal
+    values
+    propertyName
+    ( \av -> case av of
+        S b -> Right b
+        _ -> Left $ differentType propertyName "Text"
+    )
 
-getTextUnsafe :: HashMap Text AttributeValue -> Text -> IO Text
+getTextUnsafe :: DynamoDBRecord -> PropertyName -> IO Text
 getTextUnsafe values propertyName =
   case getText values propertyName of
     Right s -> return s
     Left e -> throwString $ Text.unpack e
 
-getInteger :: HashMap Text AttributeValue -> Text -> Either Text Integer
+getInteger :: DynamoDBRecord -> PropertyName -> Either Text Integer
 getInteger values propertyName =
-  case HashMap.lookup propertyName values of
-    Just (N s) -> Right $ read $ Text.unpack s
-    _ -> Left $ Text.concat ["property '", propertyName, "' not found."]
+  getValueInternal
+    values
+    propertyName
+    ( \av -> case av of
+        N b -> Right $ Prelude.read $ Text.unpack b
+        _ -> Left $ differentType propertyName "Integer"
+    )
 
-getIntegerUnsafe :: HashMap Text AttributeValue -> Text -> IO Integer
+getIntegerUnsafe :: DynamoDBRecord -> PropertyName -> IO Integer
 getIntegerUnsafe values propertyName =
   case getInteger values propertyName of
     Right s -> return s
     Left e -> throwString $ Text.unpack e
+
+getBoolean :: DynamoDBRecord -> PropertyName -> Either Text Bool
+getBoolean values propertyName =
+  getValueInternal
+    values
+    propertyName
+    ( \av -> case av of
+        BOOL b -> Right b
+        _ -> Left $ differentType propertyName "Bool"
+    )
+
+getBooleanUnsafe :: DynamoDBRecord -> PropertyName -> IO Bool
+getBooleanUnsafe values propertyName =
+  case getBoolean values propertyName of
+    Right s -> return s
+    Left e -> throwString $ Text.unpack e
+
+getValueInternal ::
+  DynamoDBRecord ->
+  PropertyName ->
+  (AttributeValue -> Either Text a) ->
+  Either Text a
+getValueInternal values propertyName toValue =
+  case HashMap.lookup propertyName values of
+    Just av ->
+      case toValue av of
+        Right v -> Right v
+        Left e -> Left e
+    Nothing -> Left $ Text.concat ["property '", propertyName, "' not found."]
+
+differentType :: PropertyName -> TypeName -> Text
+differentType propertyName typeName = Text.concat ["The value of property '", propertyName, "' is different type from the expected type ", typeName, "."]

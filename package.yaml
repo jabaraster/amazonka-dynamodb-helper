@@ -39,6 +39,8 @@ library:
   source-dirs: src
   dependencies:
   - text
+  - time
+  - iso8601-time
   - unordered-containers
   - amazonka-core
   - amazonka-dynamodb

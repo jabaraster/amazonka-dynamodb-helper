@@ -42,10 +42,11 @@ library:
   - amazonka-dynamodb
   - containers
   - iso8601-time
+  - safe-exceptions
   - text
   - time
-  - safe-exceptions
   - unordered-containers
+  - vector
 
 tests:
   amazonka-dynamodb-helper-test:

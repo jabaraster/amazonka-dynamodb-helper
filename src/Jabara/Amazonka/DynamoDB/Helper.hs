@@ -13,6 +13,8 @@ module Jabara.Amazonka.DynamoDB.Helper (
   getTextUnsafe,
   getUTCTime,
   getUTCTimeUnsafe,
+  getList,
+  getListUnsafe,
   getMap,
   getMapUnsafe,
 ) where
@@ -20,6 +22,7 @@ module Jabara.Amazonka.DynamoDB.Helper (
 import Amazonka.DynamoDB.Types.AttributeValue
 import Amazonka.Prelude (HashMap)
 import Control.Exception.Safe (throwString)
+import Data.Vector (Vector)
 import Data.Text (Text)
 import Data.Time.Clock
 import Data.Time.ISO8601
@@ -120,6 +123,22 @@ getMap values propertyName =
 getMapUnsafe :: DynamoDBRecord -> PropertyName -> IO (Map Text AttributeValue)
 getMapUnsafe values propertyName =
   case getMap values propertyName of
+    Right s -> return s
+    Left e -> throwString $ Text.unpack e
+
+getList :: DynamoDBRecord -> PropertyName -> Either Text (Vector AttributeValue)
+getList values propertyName =
+  getValueInternal
+    values
+    propertyName
+    ( \av -> case av of
+        L v -> Right v
+        _ -> Left $ differentType propertyName "List"
+    )
+
+getListUnsafe :: DynamoDBRecord -> PropertyName -> IO (Vector AttributeValue)
+getListUnsafe values propertyName =
+  case getList values propertyName of
     Right s -> return s
     Left e -> throwString $ Text.unpack e
 

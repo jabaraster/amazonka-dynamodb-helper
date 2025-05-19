@@ -13,16 +13,20 @@ module Jabara.Amazonka.DynamoDB.Helper (
   getTextUnsafe,
   getUTCTime,
   getUTCTimeUnsafe,
+  getMap,
+  getMapUnsafe,
 ) where
 
 import Amazonka.DynamoDB.Types.AttributeValue
 import Amazonka.Prelude (HashMap)
 import Control.Exception.Safe (throwString)
-import qualified Data.HashMap.Strict as HashMap
 import Data.Text (Text)
-import qualified Data.Text as Text
 import Data.Time.Clock
 import Data.Time.ISO8601
+import Data.Map.Strict (Map)
+
+import qualified Data.HashMap.Strict as HashMap
+import qualified Data.Text as Text
 
 type PropertyName = Text
 type TypeName = Text
@@ -100,6 +104,22 @@ getBoolean values propertyName =
 getBooleanUnsafe :: DynamoDBRecord -> PropertyName -> IO Bool
 getBooleanUnsafe values propertyName =
   case getBoolean values propertyName of
+    Right s -> return s
+    Left e -> throwString $ Text.unpack e
+
+getMap :: DynamoDBRecord -> PropertyName -> Either Text (Map Text AttributeValue)
+getMap values propertyName =
+  getValueInternal
+    values
+    propertyName
+    ( \av -> case av of
+        M v -> Right v
+        _ -> Left $ differentType propertyName "Map"
+    )
+
+getMapUnsafe :: DynamoDBRecord -> PropertyName -> IO (Map Text AttributeValue)
+getMapUnsafe values propertyName =
+  case getMap values propertyName of
     Right s -> return s
     Left e -> throwString $ Text.unpack e
 

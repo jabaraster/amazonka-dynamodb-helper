@@ -4,6 +4,7 @@ module Jabara.Amazonka.DynamoDB.Helper (
   PropertyName,
   DynamoDBRecord,
   FromAttributeValue (..),
+  ToAttributeValue (..),
   fromAttributeValueUnsafe,
   getBoolean,
   getBooleanUnsafe,
@@ -11,8 +12,9 @@ module Jabara.Amazonka.DynamoDB.Helper (
   getIntegerUnsafe,
   getText,
   getTextUnsafe,
-  getUTCTime,
-  getUTCTimeUnsafe,
+  getUtcTime,
+  getUtcTimeUnsafe,
+  utcTimeToText,
   getList,
   getListUnsafe,
   getMap,
@@ -44,8 +46,11 @@ fromAttributeValueUnsafe av =
     Right v -> return v
     Left e -> throwString $ Text.unpack e
 
-getUTCTime :: DynamoDBRecord -> PropertyName -> Either Text UTCTime
-getUTCTime values propertyName =
+class ToAttributeValue a where
+  toAttributeValue :: a -> AttributeValue
+
+getUtcTime :: DynamoDBRecord -> PropertyName -> Either Text UTCTime
+getUtcTime values propertyName =
   getValueInternal
     values
     propertyName
@@ -56,11 +61,14 @@ getUTCTime values propertyName =
         _ -> Left $ differentType propertyName "UTCTime"
     )
 
-getUTCTimeUnsafe :: DynamoDBRecord -> PropertyName -> IO UTCTime
-getUTCTimeUnsafe values propertyName =
-  case getUTCTime values propertyName of
+getUtcTimeUnsafe :: DynamoDBRecord -> PropertyName -> IO UTCTime
+getUtcTimeUnsafe values propertyName =
+  case getUtcTime values propertyName of
     Right s -> return s
     Left e -> throwString $ Text.unpack e
+
+utcTimeToText :: UTCTime -> Text
+utcTimeToText = Text.pack . formatISO8601
 
 getText :: DynamoDBRecord -> PropertyName -> Either Text Text
 getText values propertyName =

@@ -1,5 +1,5 @@
 name:                amazonka-dynamodb-helper
-version:             0.0.1
+version:             0.1.0
 github:              "jabaraster/amazonka-dynamodb-helper"
 license:             BSD3
 author:              "jabaraster"

@@ -5,6 +5,7 @@ module Jabara.Amazonka.DynamoDB.Helper (
   DynamoDBRecord,
   FromAttributeValue (..),
   ToAttributeValue (..),
+  ToDynamoDBRecord (..),
   fromAttributeValueUnsafe,
   getBoolean,
   getBooleanUnsafe,
@@ -24,11 +25,11 @@ module Jabara.Amazonka.DynamoDB.Helper (
 import Amazonka.DynamoDB.Types.AttributeValue
 import Amazonka.Prelude (HashMap)
 import Control.Exception.Safe (throwString)
-import Data.Vector (Vector)
+import Data.Map.Strict (Map)
 import Data.Text (Text)
 import Data.Time.Clock
 import Data.Time.ISO8601
-import Data.Map.Strict (Map)
+import Data.Vector (Vector)
 
 import qualified Data.HashMap.Strict as HashMap
 import qualified Data.Text as Text
@@ -48,6 +49,9 @@ fromAttributeValueUnsafe av =
 
 class ToAttributeValue a where
   toAttributeValue :: a -> AttributeValue
+
+class ToDynamoDBRecord a where
+  toDynamoDBRecord :: a -> DynamoDBRecord
 
 getUtcTime :: DynamoDBRecord -> PropertyName -> Either Text UTCTime
 getUtcTime values propertyName =
